@@ -2,15 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DOCUMENT } from '@angular/common';
 
-import { ZoomMtg } from '@zoomus/websdk';
-
-ZoomMtg.setZoomJSLib('https://source.zoom.us/2.9.7/lib', '/av');
-
-ZoomMtg.preLoadWasm();
-ZoomMtg.prepareWebSDK();
-// loads language files, also passes any error messages to the ui
-ZoomMtg.i18n.load('en-US');
-ZoomMtg.i18n.reload('en-US');
+import ZoomMtgEmbedded from '@zoomus/websdk/embedded';
 
 @Component({
   selector: 'app-root',
@@ -20,71 +12,75 @@ ZoomMtg.i18n.reload('en-US');
 export class AppComponent implements OnInit {
 
   // setup your signature endpoint here: https://github.com/zoom/meetingsdk-sample-signature-node.js
-  signatureEndpoint = ''
+  signatureEndpoint = 'http://localhost:4000/';  // DevSkim: ignore DS137138
   // This Sample App has been updated to use SDK App type credentials https://marketplace.zoom.us/docs/guides/build/sdk-app
-  sdkKey = ''
-  meetingNumber = '123456789'
-  role = 0
-  leaveUrl = 'http://localhost:4200'
-  userName = 'Angular'
-  userEmail = ''
-  passWord = ''
+  sdkKey = 'g12WEI4qXKMV1bVUd7jnxlnKwyhj1gMapGwr';
+  meetingNumber = '3819085252';
+  role = 1;
+  userName = 'David at LogoUI';
+  userEmail = 'david@logoui.co.il';
+  passWord = 'w3s0aL';
   // pass in the registrant's token if your meeting or webinar requires registration. More info here:
-  // Meetings: https://marketplace.zoom.us/docs/sdk/native-sdks/web/client-view/meetings#join-registered
-  // Webinars: https://marketplace.zoom.us/docs/sdk/native-sdks/web/client-view/webinars#join-registered
-  registrantToken = ''
+  // Meetings: https://marketplace.zoom.us/docs/sdk/native-sdks/web/component-view/meetings#join-registered
+  // Webinars: https://marketplace.zoom.us/docs/sdk/native-sdks/web/component-view/webinars#join-registered
+  registrantToken = '';
+
+  client = ZoomMtgEmbedded.createClient();
 
   constructor(public httpClient: HttpClient, @Inject(DOCUMENT) document) {
 
   }
 
   ngOnInit() {
+    const meetingSDKElement = document.getElementById('meetingSDKElement');
 
+    this.client.init({
+      debug: true,
+      zoomAppRoot: meetingSDKElement,
+      language: 'en-US',
+      customize: {
+        meetingInfo: ['topic', 'host', 'mn', 'pwd', 'telPwd', 'invite', 'participant', 'dc', 'enctype'],
+        toolbar: {
+          buttons: [
+            {
+              text: 'Custom Button',
+              className: 'CustomButton',
+              onClick: () => {
+                console.log('custom button');
+              }
+            }
+          ]
+        }
+      }
+    });
   }
 
-  getSignature() {
+  getSignature(): void {
     this.httpClient.post(this.signatureEndpoint, {
-	    meetingNumber: this.meetingNumber,
-	    role: this.role
+      meetingNumber: this.meetingNumber,
+      role: this.role
     }).toPromise().then((data: any) => {
-      if(data.signature) {
-        console.log(data.signature)
-        this.startMeeting(data.signature)
+      if (data.signature) {
+        console.log(data.signature);
+        this.startMeeting(data.signature);
       } else {
-        console.log(data)
+        console.log(data);
       }
     }).catch((error) => {
-      console.log(error)
-    })
+      console.log(error);
+    });
   }
 
-  startMeeting(signature) {
+  startMeeting(signature): void {
 
-    document.getElementById('zmmtg-root').style.display = 'block'
-
-    ZoomMtg.init({
-      leaveUrl: this.leaveUrl,
-      success: (success) => {
-        console.log(success)
-        ZoomMtg.join({
-          signature: signature,
-          meetingNumber: this.meetingNumber,
-          userName: this.userName,
-          sdkKey: this.sdkKey,
-          userEmail: this.userEmail,
-          passWord: this.passWord,
-          tk: this.registrantToken,
-          success: (success) => {
-            console.log(success)
-          },
-          error: (error) => {
-            console.log(error)
-          }
-        })
-      },
-      error: (error) => {
-        console.log(error)
-      }
-    })
+    this.client.join({
+      sdkKey: this.sdkKey,
+      signature,
+      meetingNumber: this.meetingNumber,
+      password: this.passWord,
+      userName: this.userName,
+      userEmail: this.userEmail,
+      tk: this.registrantToken
+    });
   }
 }
