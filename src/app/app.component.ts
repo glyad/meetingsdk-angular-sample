@@ -14,12 +14,12 @@ export class AppComponent implements OnInit {
   // setup your signature endpoint here: https://github.com/zoom/meetingsdk-sample-signature-node.js
   signatureEndpoint = 'http://localhost:4000/';  // DevSkim: ignore DS137138
   // This Sample App has been updated to use SDK App type credentials https://marketplace.zoom.us/docs/guides/build/sdk-app
-  sdkKey = 'g12WEI4qXKMV1bVUd7jnxlnKwyhj1gMapGwr';
-  meetingNumber = '3819085252';
+  sdkKey = '';
+  meetingNumber = '';
   role = 1;
-  userName = 'David at LogoUI';
-  userEmail = 'david@logoui.co.il';
-  passWord = 'w3s0aL';
+  userName = '';
+  userEmail = '';
+  passWord = '';
   // pass in the registrant's token if your meeting or webinar requires registration. More info here:
   // Meetings: https://marketplace.zoom.us/docs/sdk/native-sdks/web/component-view/meetings#join-registered
   // Webinars: https://marketplace.zoom.us/docs/sdk/native-sdks/web/component-view/webinars#join-registered
@@ -31,6 +31,7 @@ export class AppComponent implements OnInit {
 
   }
 
+  // tslint:disable-next-line: typedef
   ngOnInit() {
     const meetingSDKElement = document.getElementById('meetingSDKElement');
 
