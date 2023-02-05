@@ -17,7 +17,7 @@ ZoomMtg.i18n.reload('en-US');
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
 
   // setup your signature endpoint here: https://github.com/zoom/meetingsdk-sample-signature-node.js
   signatureEndpoint = 'http://localhost:4000/'; // DevSkim: ignore DS137138
@@ -34,15 +34,9 @@ export class AppComponent implements OnInit {
   // Webinars: https://marketplace.zoom.us/docs/sdk/native-sdks/web/client-view/webinars#join-registered
   registrantToken = '';
 
-  constructor(public httpClient: HttpClient, @Inject(DOCUMENT) document) {
+  constructor(public httpClient: HttpClient, @Inject(DOCUMENT) document) { }
 
-  }
-
-  ngOnInit() {
-
-  }
-
-  getSignature() {
+  getSignature(): void {
     this.httpClient.post(this.signatureEndpoint, {
 	    meetingNumber: this.meetingNumber,
 	    role: this.role
